@@ -11,22 +11,32 @@ from selenium.webdriver.chrome.service import Service
 link_1 = 'https://hands.ru/company/about'
 link_2 = 'https://repetitors.info'
 
-# Данная функция находит номера у многих сайтов, но есть инсключения, тот же link_1.
+# Данная функция находит номера у многих сайтов, но есть инсключения, тот же link_1. Отобразил два разных метода.
 def find_numbers(url):
     response = requests.get(url)
+    if response.status_code == 200:
+        html_content = response.text
 
-    html_content = response.text
+        soup = BeautifulSoup(html_content, 'html.parser')
+        items = soup.find_all('a')
 
-    soup = BeautifulSoup(html_content, 'html.parser')
+        numbers = []
 
-    phone_numbers = re.findall(r'\d{1} \(\d{3}\) \d{3}-\d{2}-\d{2}', str(soup))
+        for item in items:
+            link = item.get('href')
+            if link:
+                if link.startswith('tel:'):
+                    numbers.append(link[4:])
+        return numbers
 
-    numbers = []
+    # phone_numbers = re.findall(r'\d{1} \(\d{3}\) \d{3}-\d{2}-\d{2}', str(soup))
 
-    for phone_number in phone_numbers:
-        numbers.append(phone_number)
+    # numbers = []
+
+    # for phone_number in phone_numbers:
+    #     numbers.append(phone_number)
     
-    return numbers
+    # return numbers
 
 # Эта функция делает поиск номера телефона для первого сайта(link_1), функция ищет всего один номер, и она заточена под один конкретный сайт.
 def find_numbers_2(url):
@@ -57,4 +67,4 @@ def find_numbers_2(url):
         driver.quit()
 
 # print(find_numbers_2(link_1))
-# print(find_numbers_2(link_2))
+print(find_numbers(link_2))
